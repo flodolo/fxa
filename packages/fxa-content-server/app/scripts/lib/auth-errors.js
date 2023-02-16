@@ -315,6 +315,12 @@ var ERRORS = {
       'Complete account setup, please <a href="/reset_password">reset password</a> to continue.'
     ),
   },
+  UNABLE_TO_LOGIN_NO_PASSWORD_SET_XXXX: {
+    errno: XXXX,
+    message: t(
+      'Complete account setup! Please <a href="/reset_password">reset password</a> to continue.'
+    ),
+  },
   SERVICE_UNAVAILABLE: {
     errno: 998,
     message: t('System unavailable, try again soon'),
