@@ -312,7 +312,7 @@ var ERRORS = {
   UNABLE_TO_LOGIN_NO_PASSWORD_SET: {
     errno: 210,
     message: t(
-      'Complete account setup, please <a href="/reset_password">reset password</a> to continue.'
+      'Complete account setup!!!\! please <a href="/reset_password">reset password</a> to continue.'
     ),
   },
   SERVICE_UNAVAILABLE: {
