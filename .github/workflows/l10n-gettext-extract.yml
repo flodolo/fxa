@@ -44,6 +44,7 @@ jobs:
           cd ../..
 
           # Get hash from PR commit.
+          echo "Extraction complete. Calculating new hashes..."
           NEW_HASHES=$(python ../fxa-l10n/scripts/pot_checksum.py ./packages/fxa-content-server/locale/templates/)
 
           # Checkout base commit
@@ -57,6 +58,7 @@ jobs:
           cd ../..
 
           # Get hash from base commit
+          echo "Extraction complete. Calculating old hashes..."
           OLD_HASHES=$(python ../fxa-l10n/scripts/pot_checksum.py ./packages/fxa-content-server/locale/templates/)
 
           # Compare hashes
@@ -64,6 +66,8 @@ jobs:
           then
             echo "No changes found."
           else
+            echo "Getting pr number"
+            echo $(gh pr view $PR_NUMBER)
             gh pr view $PR_NUMBER --json reviewRequests | jq -r ".reviewRequests[].name" | grep -q "fxa-l10n"
             if [ $? -ne 0 ]; then
                 # Check if someone from the Localization Team already reviewed the PR.
