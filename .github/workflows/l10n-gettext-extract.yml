@@ -11,13 +11,6 @@ jobs:
         run: |
           sudo apt update
           sudo apt install gettext -y
-      - name: Set up Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-      - name: Install global npm packages
-        run: |
-          yarn global add grunt-cli
       - name: Clone l10n repository
         uses: actions/checkout@v3
         with:
@@ -28,47 +21,27 @@ jobs:
         with:
           fetch-depth: 2
           path: "fxa-code"
-      - name: Install npm packages
-        run: |
-          cd fxa-l10n
-          yarn install
       - name: Extract gettext strings and flag for review
         run: |
-          cd fxa-code
-          _scripts/l10n/clone.sh
-          yarn workspaces focus fxa-content-server
-
-          # Extract gettext
-          cd ./packages/fxa-content-server
-          npx grunt l10n-extract
-          cd ../..
-
           # Get hash from PR commit.
           echo "Extraction complete. Calculating new hashes..."
-          NEW_HASHES=$(python ../fxa-l10n/scripts/pot_checksum.py ./packages/fxa-content-server/locale/templates/)
-
-          # Checkout base commit
-          git fetch origin ${{ github.event.pull_request.base.sha }}
-          git checkout ${{ github.event.pull_request.base.sha }}
-
-          # Extract gettext
-          cd ./packages/fxa-content-server
-          rm ./locale/templates/LC_MESSAGES/*
-          npx grunt l10n-extract
-          cd ../..
+          NEW_HASHES="foo"
 
           # Get hash from base commit
           echo "Extraction complete. Calculating old hashes..."
-          OLD_HASHES=$(python ../fxa-l10n/scripts/pot_checksum.py ./packages/fxa-content-server/locale/templates/)
+          OLD_HASHES="bar"
 
           # Compare hashes
           if [ "$NEW_HASHES" = "$OLD_HASHES" ]
           then
             echo "No changes found."
           else
+            echo "PR number: $PR_NUMBER"
+            echo "Repo: $REPO_NAME"
+            cd fxa-code
+            gh repo set-default $REPO_NAME
             gh pr view $PR_NUMBER --json reviewRequests | jq -r ".reviewRequests[].name" | grep -q "fxa-l10n"
             if [ $? -ne 0 ]; then
-                gh repo set-default $REPO_NAME
                 # Check if someone from the Localization Team already reviewed the PR.
                 # Get the list of fxa-l10n reviewers, excluding non-l10n members
                 L10N_REVIEWERS=$(gh api -H "Accept: application/vnd.github+json" /orgs/mozilla/teams/fxa-l10n/members | jq -r '(.[].login | select(. != "clouserw"))' | sort)
